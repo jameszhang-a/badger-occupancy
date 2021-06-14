@@ -1,0 +1,5 @@
+# ignores build files
+vscode/
+Lib/
+Scripts/
+venv/
