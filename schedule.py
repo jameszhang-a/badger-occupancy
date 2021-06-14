@@ -1,6 +1,6 @@
 from crontab import CronTab
 
-file_cron = CronTab(tabfile='file.txt')
+file_cron = CronTab('file.txt')
 mem_cron = CronTab(tab="""
   * * * * * command
 """)
