@@ -1,42 +1,23 @@
-import pandas as pd
 from bs4 import BeautifulSoup
-from selenium import webdriver
 from datetime import date, datetime
-from os import path
-import time
+import requests
+import csv
 
-#Finds and starts webdriver
+# Goes to the url and makes a request object
 URL = 'https://services.recwell.wisc.edu/FacilityOccupancy'
-PATH = './chromedriver.exe'
+source = requests.get(URL).text
 
-while(1):
-    #gets the date and time
-    today = date.today()
-    now = datetime.now()
+# Retrives the data from the source
+soup = BeautifulSoup(source, 'html.parser')
+data = soup.find(attrs='occupancy-count').strong.text
 
-    d = today.strftime('%m/%d/%y')
-    t = now.strftime('%H:%M:%S')
+# Gets the date and time
+today = date.today()
+now = datetime.now()
+d = today.strftime('%m/%d/%y')
+t = now.strftime('%H:%M')
 
-    print('Date and time: ', d, ' ' , t )
-
-    driver = webdriver.Chrome(executable_path=PATH)
-    driver.get(URL)
-
-    #parses content
-    content = driver.page_source
-    soup = BeautifulSoup(content)
-    driver.quit()
-
-    #find data
-    name = soup.findAll(attrs='occupancy-count')[0].find('strong')
-
-    #add to pandas, then export to csv
-    df = pd.DataFrame({'Date': d, 'Time': t, 'Occupency': [name.text]})
-    if not path.exists('data.csv'):
-        df.to_csv('data.csv', index=False, encoding='Utf-8')
-    else:
-        df.to_csv('data.csv', mode='a', header=False, index=False, encoding='Utf-8')
-
-        
-    time.sleep(900)
-    
+# Writes to csv
+with open('data.csv', 'a') as file:
+    csv_f = csv.writer(file)
+    csv_f.writerow([d, t, data])
